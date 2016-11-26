@@ -17,7 +17,8 @@ class SimpleSoundPlayer {
 
         // play the sound
         sound.play(stream);
-
+        ByteArrayOutputStream bout = sound.play(stream);
+        ByteArrayInputStream bais = new ByteArrayInputStream(bout.toByteArray());
         // exit
         System.exit(0);
     }
@@ -32,8 +33,7 @@ class SimpleSoundPlayer {
     public SimpleSoundPlayer(String filename) {
         try {
             // open the audio input stream
-            AudioInputStream stream = AudioSystem.getAudioInputStream(new File(
-                    filename));
+            AudioInputStream stream = AudioSystem.getAudioInputStream(new File(filename));
 
             format = stream.getFormat();
 
@@ -78,23 +78,24 @@ class SimpleSoundPlayer {
      * Plays a stream. This method blocks (doesn't return) until the sound is
      * finished playing.
      */
-    public void play(InputStream source) {
+    public ByteArrayOutputStream play(InputStream source) {
 
         // use a short, 100ms (1/10th sec) buffer for real-time
         // change to the sound stream
-        int bufferSize = format.getFrameSize()
-                * Math.round(format.getSampleRate() / 10);
+
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        int bufferSize = format.getFrameSize() * Math.round(format.getSampleRate() / 10);
         byte[] buffer = new byte[bufferSize];
 
         // create a line to play to
-        SourceDataLine line;
+        SourceDataLine line = null;
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(format, bufferSize);
         } catch (LineUnavailableException ex) {
             ex.printStackTrace();
-            return;
+            System.out.println(ex.getMessage());
         }
 
         // start the line
@@ -106,6 +107,7 @@ class SimpleSoundPlayer {
             while (numBytesRead != -1) {
                 numBytesRead = source.read(buffer, 0, buffer.length);
                 if (numBytesRead != -1) {
+                    bout.write(buffer, 0, numBytesRead);
                     line.write(buffer, 0, numBytesRead);
                 }
             }
@@ -116,7 +118,7 @@ class SimpleSoundPlayer {
         // wait until all data is played, then close the line
         line.drain();
         line.close();
-
+        return bout;
     }
 
 }
