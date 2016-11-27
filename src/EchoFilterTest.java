@@ -25,10 +25,10 @@ import java.io.InputStream;
  */
 public class EchoFilterTest {
 
-    public static void main(String[] args) {
-
+   // public static void main(String[] args) {
+    public static void gain() {
         // load the sound
-        SimpleSoundPlayer sound = new SimpleSoundPlayer("../sounds/voice.wav");
+        SimpleSoundPlayer sound = new SimpleSoundPlayer("../sounds/voice.wav", 7200, "C:\\Users\\Cristian\\Desktop\\HackKing-s\\src\\amy2.wav");
 
         // create the sound stream
         InputStream is = new ByteArrayInputStream(sound.getSamples());
@@ -40,8 +40,8 @@ public class EchoFilterTest {
         // create the filtered sound stream
         is = new FilteredSoundStream(is, filter);
 
-        // play the sound
-        sound.play(is);
+        // play_silent the sound
+        sound.play_silent(is);
 
         // due to bug in Java Sound, explicitly exit the VM.
         System.exit(0);
